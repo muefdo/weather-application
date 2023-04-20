@@ -1,11 +1,25 @@
 import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
+import axios from 'axios'
+import { useState } from "react";
+import Image from 'next/image';
 
-const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
+  const [data, setData] = useState({});
+  const [location, setLocation] = useState('');
+
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=e2888f284c2ab0f776bb3f3f190c36aa`;
+
+  const searchLocation = () => {
+    axios.get(url)
+      .then((response) => {
+        setData(response.data)
+      })
+      .catch((error) => {
+        console.log("hata")
+      });
+  };
+
   return (
     <>
       <Head>
@@ -14,101 +28,36 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>pages/index.js</code>
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              By{' '}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={100}
-                height={24}
-                priority
-              />
-            </a>
+      <main>
+        <div className='app'>
+
+          <div className='topBar'>
+            <input className='input' type="text" placeholder='Şehir İsmi Girin' onChange={(event) => setLocation(event.target.value)} onKeyUp={searchLocation} />
+            <button className='button' onClick={searchLocation}>Ara</button>
+          </div>
+
+          <div className='mainBar'>
+            <div className='celsiusBar' >
+              {/*bu kodu gpt den aldım eğer data.name && eklemezsem hata veriyor bu şekilde düzgün bu kod data name yanlışsa error vermemesini sağlıyor*/}
+              {data.main && (
+                <>
+                  <h1 className='locationH1'>{data.name}</h1>
+                  {data.main && <p className='locationTemp' >{(data.main.temp - 273.15).toFixed(0)} Derece</p>}
+                </>
+              )}
+            </div>
+            <div className='humidityBar'>
+              {data.main && (
+                <>
+                  <p className='nemOran'>{data.main.humidity}</p>
+                  <h1 className='nemH1'>Nem Oranı</h1>
+                </>
+              )}
+            </div>
           </div>
         </div>
-
-        <div className={styles.center}>
-          <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={180}
-            height={37}
-            priority
-          />
-        </div>
-
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
-        </div>
       </main>
+
     </>
   )
 }
